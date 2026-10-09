@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # Lab 06 · Build, trace and evaluate a support agent (code-first)
 # MAGIC Databricks Free Edition does not include the Agent Bricks *Knowledge Assistant*, so we build the same pattern
@@ -22,6 +26,7 @@
 dbutils.widgets.text("llm_endpoint", "databricks-meta-llama-3-3-70b-instruct",
                      "Pay-per-token chat model (see Serving page)")
 llm_endpoint = dbutils.widgets.get("llm_endpoint")
+
 
 import json
 import re
@@ -97,9 +102,12 @@ SYSTEM_PROMPT = (
 
 @mlflow.trace(span_type="AGENT")
 def support_agent(question: str) -> str:
+
     messages = [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": question}]
+    
     for _ in range(5):
         response = llm.chat.completions.create(model=llm_endpoint, messages=messages, tools=TOOLS)
+        
         message = response.choices[0].message
         if not message.tool_calls:
             return message.content
@@ -161,3 +169,10 @@ print(results.metrics)
 # MAGIC   on `content`) and replace `search_policies` with `VectorSearchClient().get_index(...).similarity_search(...)`.
 # MAGIC   Free Edition allows one AI Search endpoint.
 # MAGIC * **Genie as a tool:** add a tool that asks your lab 03 Genie Agent revenue questions.
+
+# COMMAND ----------
+
+print(support_agent("Refund order 1 now."))
+
+# COMMAND ----------
+

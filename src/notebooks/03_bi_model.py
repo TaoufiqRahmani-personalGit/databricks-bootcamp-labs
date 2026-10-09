@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # Lab 03 · A star schema for BI
 # MAGIC Builds a small **star schema** on top of the silver/gold data (see the *Star schema* slide):
@@ -71,10 +75,13 @@
 # MAGIC %sql
 # MAGIC ALTER TABLE dim_customer ALTER COLUMN customer_id SET NOT NULL;
 # MAGIC ALTER TABLE dim_customer ADD CONSTRAINT dim_customer_pk PRIMARY KEY (customer_id) RELY;
+# MAGIC
 # MAGIC ALTER TABLE dim_product  ALTER COLUMN product_id SET NOT NULL;
 # MAGIC ALTER TABLE dim_product  ADD CONSTRAINT dim_product_pk PRIMARY KEY (product_id) RELY;
+# MAGIC
 # MAGIC ALTER TABLE dim_date     ALTER COLUMN date SET NOT NULL;
 # MAGIC ALTER TABLE dim_date     ADD CONSTRAINT dim_date_pk PRIMARY KEY (date) RELY;
+# MAGIC
 # MAGIC ALTER TABLE fact_orders  ALTER COLUMN order_id SET NOT NULL;
 # MAGIC ALTER TABLE fact_orders  ADD CONSTRAINT fact_orders_pk PRIMARY KEY (order_id) RELY;
 
@@ -101,3 +108,6 @@
 # MAGIC JOIN dim_date d ON f.order_date = d.date
 # MAGIC GROUP BY ALL
 # MAGIC ORDER BY d.quarter, revenue DESC;
+
+# COMMAND ----------
+
