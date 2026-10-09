@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # Lab 05 · Generative AI in SQL with AI Functions
 # MAGIC Turn 300 free-text support tickets into structured, governed data — no model hosting, no Python.
@@ -29,9 +33,11 @@ display(spark.sql("SELECT ticket_id, channel, subject, body FROM support_tickets
 # MAGIC CREATE OR REPLACE TABLE tickets_enriched AS
 # MAGIC SELECT
 # MAGIC   ticket_id, customer_id, channel, created_at, subject, body, true_category,
+# MAGIC
 # MAGIC   ai_classify(body, ARRAY('delivery', 'return', 'billing', 'product_issue', 'account')) AS category,
 # MAGIC   ai_analyze_sentiment(body)                                                         AS sentiment,
 # MAGIC   ai_extract(body, ARRAY('order_id', 'product'))                                     AS entities
+# MAGIC
 # MAGIC FROM support_tickets;
 
 # COMMAND ----------
@@ -62,10 +68,13 @@ display(spark.sql("SELECT ticket_id, channel, subject, body FROM support_tickets
 
 # MAGIC %sql
 # MAGIC SELECT ticket_id, category,
+# MAGIC
 # MAGIC        ai_summarize(body, 20) AS summary,
+# MAGIC        
 # MAGIC        ai_gen(concat(
 # MAGIC          'You are a polite customer-support agent. Write a short reply (max 60 words) to this ticket. ',
 # MAGIC          'Apologise, explain the next step, and never promise a refund. Ticket: ', body)) AS draft_reply
+# MAGIC          
 # MAGIC FROM tickets_enriched
 # MAGIC WHERE sentiment = 'negative'
 # MAGIC ORDER BY created_at DESC
@@ -80,9 +89,14 @@ display(spark.sql("SELECT ticket_id, channel, subject, body FROM support_tickets
 # COMMAND ----------
 
 dbutils.widgets.text("llm_endpoint", "databricks-meta-llama-3-3-70b-instruct", "Chat model (see Serving)")
+
 llm = dbutils.widgets.get("llm_endpoint")
+
 display(spark.sql(f"""
   SELECT ticket_id, body,
          ai_query('{llm}', concat('In one short sentence, what does the customer want? ', body)) AS intent
   FROM support_tickets LIMIT 5
 """))
+
+# COMMAND ----------
+

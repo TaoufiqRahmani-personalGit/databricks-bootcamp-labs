@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # Lab 06 · Governed tools for the support agent
 # MAGIC Unity Catalog functions become agent tools: governed, versioned, discoverable — and callable through MCP.
@@ -55,6 +59,12 @@ docs = (
     spark.read.format("text").option("wholetext", True).load(f"{raw_path}/docs/")
     .select(F.col("_metadata.file_name").alias("doc_id"), F.col("value").alias("content"))
 )
+
 docs.write.mode("overwrite").option("overwriteSchema", True).saveAsTable("support_docs")
+
 spark.sql("ALTER TABLE support_docs SET TBLPROPERTIES (delta.enableChangeDataFeed = true)")
+
 display(spark.table("support_docs"))
+
+# COMMAND ----------
+

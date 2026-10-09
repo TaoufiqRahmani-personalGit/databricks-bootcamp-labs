@@ -1,0 +1,6 @@
+resources:
+  dashboards:
+    revenueanalysis:
+      display_name: "RevenueAnalysis"
+      warehouse_id: 9ed122882895208e
+      file_path: ../src/revenueanalysis.lvdash.json

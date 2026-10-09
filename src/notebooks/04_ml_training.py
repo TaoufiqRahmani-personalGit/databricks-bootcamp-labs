@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # Lab 05 · Feature engineering in Unity Catalog + churn model
 # MAGIC 1. Compute customer features from `orders_silver`
@@ -106,6 +110,7 @@ y = pdf["churned"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
 
 mlflow.set_experiment(dbutils.widgets.get("experiment_path") or f"/Users/{_user}/bootcamp-churn")
+
 with mlflow.start_run(run_name="gbt-baseline") as run:
     model = GradientBoostingClassifier(random_state=42).fit(X_train, y_train)
     auc = roc_auc_score(y_test, model.predict_proba(X_test)[:, 1])
@@ -140,11 +145,15 @@ print(f"{model_name} v{latest} is now @champion")
 # COMMAND ----------
 
 fs_version = max(int(v.version) for v in client.search_model_versions(f"name='{model_name_fs}'"))
+
 scored = fe.score_batch(model_uri=f"models:/{model_name_fs}/{fs_version}", df=labels.select("customer_id"))
+
 display(scored.select("customer_id", "prediction").limit(20))
+
 (scored.select("customer_id", "prediction")
        .withColumnRenamed("prediction", "churn_predicted")
        .write.mode("overwrite").option("overwriteSchema", True).saveAsTable("churn_predictions"))
+       
 spark.sql("COMMENT ON TABLE churn_predictions IS 'Daily churn predictions from churn_model_fs (lab 04)'")
 
 # COMMAND ----------
@@ -167,3 +176,6 @@ if publish_online:
         source_table_name=feature_table,
         online_table_name=f"{feature_table}_online",
     )
+
+# COMMAND ----------
+

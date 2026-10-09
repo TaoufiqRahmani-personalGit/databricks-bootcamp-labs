@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # Lab 04 · Unity Catalog, Domains & Metric Views
 # MAGIC Prerequisites: labs 02–03 completed; you created the groups `bootcamp_analysts` and
@@ -41,6 +45,11 @@ display(spark.sql(f"SHOW GRANTS ON SCHEMA `{catalog}`.`{schema}`"))
 # MAGIC   ELSE concat('***@', split_part(email, '@', 2))
 # MAGIC END;
 # MAGIC
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %sql
 # MAGIC ALTER TABLE customer_profiles ALTER COLUMN email SET MASK mask_email;
 
 # COMMAND ----------
